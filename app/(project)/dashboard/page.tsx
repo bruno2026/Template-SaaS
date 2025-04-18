@@ -1,5 +1,6 @@
 import { handleAuth } from "@/app/actions/handle-auth";
 import { auth } from "@/app/lib/auth";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
@@ -11,7 +12,7 @@ export default async function Dashboard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold">Dashboard</h1>
+      <h1 className="text-4xl font-bold">protected Dashboard</h1>
       <p>
         {session?.user?.email
           ? session?.user?.email
@@ -27,6 +28,8 @@ export default async function Dashboard() {
           </button>
         </form>
       )}
+
+      <Link href={"/pagamentos"}>Pagamentos</Link>
     </div>
   );
 }
