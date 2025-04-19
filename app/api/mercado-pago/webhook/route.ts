@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mpClient, { validateMercadoPagoWebhook } from "@/app/lib/mercado-pago";
 import { handleMercadoPagoPayment } from "@/app/server/mercado-pago/handle-payment";
 import { Payment } from "mercadopago";
