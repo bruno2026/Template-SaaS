@@ -1,4 +1,10 @@
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Template SaaS",
+  description: "This is the landing page of the application.",
+};
 
 export default function Home() {
   return (
