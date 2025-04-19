@@ -3,6 +3,10 @@ import { handleMercadoPagoPayment } from "@/app/server/mercado-pago/handle-payme
 import { Payment } from "mercadopago";
 import { NextRequest, NextResponse } from "next/server";
 
+function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function POST(req: NextRequest) {
     try {
         validateMercadoPagoWebhook(req);
@@ -19,16 +23,31 @@ export async function POST(req: NextRequest) {
                     break;
                 }
                 const payment = new Payment(mpClient);
+                let paymentData;
                 try {
-                    const paymentData = await payment.get(data.id);
-                    if (
-                        paymentData.status === "approved" ||
-                        paymentData.date_approved !== null
-                    ) {
-                        await handleMercadoPagoPayment(paymentData);
+                    paymentData = await payment.get(data.id);
+                } catch (err: any) {
+                    // Se não encontrar, tenta novamente após 3 segundos
+                    if (err?.message?.includes("resource not found")) {
+                        console.warn("Pagamento não encontrado, tentando novamente em 2s:", data.id);
+                        await sleep(3000);
+                        try {
+                            paymentData = await payment.get(data.id);
+                        } catch (err2) {
+                            console.error("Ainda não encontrado:", err2);
+                            break;
+                        }
+                    } else {
+                        console.error("Erro ao buscar pagamento:", err);
+                        break;
                     }
-                } catch (err) {
-                    console.error("Erro ao buscar pagamento:", err);
+                }
+                if (
+                    paymentData &&
+                    (paymentData.status === "approved" ||
+                        paymentData.date_approved !== null)
+                ) {
+                    await handleMercadoPagoPayment(paymentData);
                 }
                 break;
             }
