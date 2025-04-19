@@ -6,5 +6,5 @@ export async function handleMercadoPagoPayment(
     const metadata = paymentData.metadata;
     const userEmail = metadata.user_email;
     const testeId = metadata.teste_id;
-    console.log("PAGAMENTO COM SUCESSO:", paymentData, userEmail, testeId);
+    console.log("PAGAMENTO COM SUCESSO:", { userEmail, testeId, paymentData});
 }
