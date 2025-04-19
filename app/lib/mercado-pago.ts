@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
 const mpClient = new MercadoPagoConfig({
-    accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN,
+    accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
 });
 
 export default mpClient;
