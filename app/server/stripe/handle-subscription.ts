@@ -26,7 +26,7 @@ export async function handleStripeSubscription(
     });
 
     const { data, error } = await resend.emails.send({
-      from: "Acme <brunoo.gomes11@gmail.com>",
+      from: "Acme <me@brunogomes.dev>",
       to: [userEmail ?? ""],
       subject: "Assinatura ativada com sucesso",
       text: "Assinatura ativada com sucesso",

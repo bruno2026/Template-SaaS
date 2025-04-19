@@ -26,7 +26,7 @@ export async function handleStripePayment(
     });
 
     const { data, error } = await resend.emails.send({
-      from: "Acme <brunoo.gomes11@gmail.com>",
+      from: "Acme <me@brunogomes.dev>",
       to: [userEmail],
       subject: "Pagamento realizado com sucesso",
       text: "Pagamento realizado com sucesso",

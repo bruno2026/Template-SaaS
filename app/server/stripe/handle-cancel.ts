@@ -29,7 +29,7 @@ export async function handleStripeCancelSubscription(
   });
 
   const { data, error } = await resend.emails.send({
-    from: "Acme <brunoo.gomes11@gmail.com>",
+    from: "Acme <me@brunogomes.dev>",
     to: [userEmail],
     subject: "Assinatura cancelada com sucesso",
     text: "Assinatura cancelada com sucesso",
