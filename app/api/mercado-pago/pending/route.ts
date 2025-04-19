@@ -3,25 +3,25 @@ import { Payment } from "mercadopago";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url);
 
-    const paymentId = searchParams.get("payment_id");
+  const paymentId = searchParams.get("payment_id");
 
-    const testeId = searchParams.get("external_reference");
+  const id = searchParams.get("external_reference");
 
-    if (!paymentId || !testeId) {
-        return NextResponse.json({ error: "Payment ID or teste ID not found" }, { status: 400 });
-    }
-
-    const payment = new Payment(mpClient);
-    const paymentData = await payment.get({
-        id: paymentId,
+  if (!paymentId || !id) {
+    return new Response("Missing payment_id or external_reference", {
+      status: 400,
     });
+  }
 
-    if (paymentData.status === "approved" || paymentData.date_approved !== null) {
-        return NextResponse.json(new URL(`/success`, req.url));
-    }
+  const payment = new Payment(mpClient);
 
-    return NextResponse.json(new URL(`/`, req.url));
+  const paymentData = await payment.get({ id: id });
 
+  if (paymentData.status === "approved" || paymentData.date_approved !== null) {
+    return NextResponse.redirect(new URL(`/success`, req.url));
+  }
+
+  return NextResponse.redirect(new URL(`/success`, req.url));
 }

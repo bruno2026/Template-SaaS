@@ -1,77 +1,74 @@
-import { NextRequest, NextResponse } from "next/server";
+import mpClient from "@/app/lib/mercado-pago";
 import { Preference } from "mercadopago";
-import mpCliente from "@/app/lib/mercado-pago";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-    const { testeId, userEmail } = await req.json();
+  const { id, userEmail } = await req.json();
 
-    try {
-        const preference = new Preference(mpCliente);
+  try {
+    const preference = new Preference(mpClient);
 
-        const createPreference = await preference.create({
-            body: {
-                external_reference: testeId, // Isso impacta na pontuacao do Mercado Pago
-                metadata: {
-                    testeId, // Essa variavel é convertida para snake_case -> teste_id
-                    userEmail, // Essa variavel é convertida para snake_case -> user_email
-                },
-                ...(userEmail && { payer: { email: userEmail } }), // tambem importante para pontuacao
-                items: [
-                    {
-                        id: "",
-                        description: "",
-                        title: "",
-                        quantity: 1,
-                        unit_price: 1,
-                        currency_id: "BRL",
-                        category_id: "services",
-                    },
-                ],
-                payment_methods: {
-                    installments: 12,
-                    // excluded_payment_methods: [
-                    //     {
-                    //         id: "bolbradesco",
-                    //     },
-                    //     {
-                    //         id: "pec",
-                    //     }
-                    // ],
-                    // excluded_payment_types: [
-                    //     {
-                    //         id: "ticket",
-                    //     },
-                    //     {
-                    //         id: "atm",
-                    //     }
-                    // ],
-                },
-                auto_return: "approved",
-                back_urls: {
-                    success: `${req.headers.get("origin")}/api/mercado-pago/pending`,
-                    failure: `${req.headers.get("origin")}/api/mercado-pago/pending`,
-                    pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
-                },
-            },
-        });
+    const createdPreference = await preference.create({
+      body: {
+        external_reference: id, //Isso impacta na pontuação do Mercado Pago
+        metadata: {
+          id,
+          userEmail,
+        },
+        ...(userEmail && { payer_email: userEmail }), // Adiciona o e-mail do usuário se estiver disponível
+        items: [
+          {
+            id,
+            title: "Teste",
+            description: "Teste",
+            quantity: 1,
+            currency_id: "BRL",
+            unit_price: 1,
+            category_id: "Service",
+          },
+        ],
+        // payment_methods: {
+        //     installments: 12, //Número de parcelas
+        //     excluded_payment_types: [
+        //       { id: "bolbradesco" },
+        //       { id: "pec" },
+        //     ],
+        //     excluded_payment_methods: [
+        //         {id: "diners"},
+        //         {id: "amex"},
+        //         {id: "discover"},
+        //         {id: "jcb"},
+        //         {id: "hipercard"},
+        //     ]
+        // }
+        auto_return: "approved",
+        back_urls: {
+          success: `${req.headers.get("origin")}/api/mercado-pago/success`,
+          failure: `${req.headers.get("origin")}/api/mercado-pago/failure`,
+          pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
+        },
+      },
+    });
 
-        if (!createPreference.id) {
-            return NextResponse.json(
-                { error: "Erro ao criar checkout com mercado pago" },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json({
-            preferenceId: createPreference.id,
-            initPoint: createPreference.init_point,
-        });
-
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json(
-            { error: "Erro ao criar checkout com mercado pago" },
-            { status: 500 }
-        );
+    if (!createdPreference) {
+      return NextResponse.json(
+        { error: "Error creating preference" },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json(
+      {
+        preferenceId: createdPreference.id,
+        initPoint: createdPreference.init_point,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json(
+      { error: "Error creating preference" },
+      { status: 500 }
+    );
+  }
 }
