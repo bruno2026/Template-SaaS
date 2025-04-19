@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Preference } from "mercadopago";
 import mpCliente from "@/app/lib/mercado-pago";
 
-export async function POST(request: NextRequest) {
-    const { testeId, userEmail } = await request.json();
+export async function POST(req: NextRequest) {
+    const { testeId, userEmail } = await req.json();
 
     try {
         const preference = new Preference(mpCliente);
@@ -14,15 +14,16 @@ export async function POST(request: NextRequest) {
                 metadata: {
                     testeId, // Essa variavel é convertida para snake_case -> teste_id
                 },
-                ...(userEmail && { payer: { email: userEmail } }),
+                ...(userEmail && { payer: { email: userEmail } }), // tambem importante para pontuacao
                 items: [
                     {
                         id: "",
-                        title: "",
                         description: "",
+                        title: "",
                         quantity: 1,
-                        currency_id: "BRL",
                         unit_price: 1,
+                        currency_id: "BRL",
+                        category_id: "services",
                     },
                 ],
                 payment_methods: {
@@ -46,9 +47,9 @@ export async function POST(request: NextRequest) {
                 },
                 auto_return: "approved",
                 back_urls: {
-                    success: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
-                    failure: `${process.env.NEXT_PUBLIC_APP_URL}/failure`,
-                    pending: `${process.env.NEXT_PUBLIC_APP_URL}/pending`,
+                    success: `${req.headers.get("origin")}/api/mercado-pago/pending`,
+                    failure: `${req.headers.get("origin")}/api/mercado-pago/pending`,
+                    pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
                 },
             },
         });
